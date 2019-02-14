@@ -30,6 +30,7 @@ def create_testbench(fname):
             else:
                 data['signal'].append(line.strip())
                 types = port_name.group(3).strip()
+                print(types)
                 if types[-1] == ';':
                     typ = types[0:-1]
                 data['signal_names'].append(port_name.group(1).strip())
@@ -59,7 +60,7 @@ def write_tb(data, fname, gen):
     of = open(os.path.join(os.path.dirname(fname), "tb_%s" % os.path.basename(fname)), "w+")
     for line in data['header']:
         of.write("%s\n" % line)
-    of.write("\nentity %s_tb is\nend entity\n\n" % data['entity'][0])
+    of.write("\nentity %s_tb is\nend entity;\n\n" % data['entity'][0])
     of.write("architecture behavioral of %s_tb is\n" % data['entity'][0])
     of.write("\tcomponent %s is\n" % data['entity'][0])
     if gen > 0:
@@ -80,9 +81,9 @@ def write_tb(data, fname, gen):
     of.write("\nbegin\n\tclk <= not clk after 5 ns;\n\n\tUUT: %s\n\t\t"
              "port map(\n" % data['entity'][0])
 
-    for name in data['signal_names']:
+    for name in data['signal_names'][:-1]:
         of.write("\t\t\t%s=>%s,\n" % (name, name))
-
+    of.write("\t\t\t%s=>%s\n" % (data['signal_names'][-1], data['signal_names'][-1]))
     of.write("\t\t\t);\n\nprocess\nbegin\n\n\t\twait;\nend process;\nend behavioral;")
     of.close()
 
@@ -92,3 +93,4 @@ if __name__ == '__main__':
     parser.add_argument("input_fname", help="VHDL file to read.", type=str)
     args = parser.parse_args()
     create_testbench(args.input_fname)
+    
