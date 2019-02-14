@@ -1,5 +1,6 @@
 import re
 import collections
+import os
 import argparse
 
 
@@ -55,8 +56,7 @@ def create_testbench(fname):
 
 
 def write_tb(data, fname, gen):
-    of = open("tb_%s" % fname, "w+")
-
+    of = open(os.path.join(os.path.dirname(fname), "tb_%s" % os.path.basename(fname)), "w+")
     for line in data['header']:
         of.write("%s\n" % line)
     of.write("\nentity %s_tb is\nend entity\n\n" % data['entity'][0])
@@ -85,11 +85,10 @@ def write_tb(data, fname, gen):
 
     of.write("\t\t\t);\n\nprocess\nbegin\n\n\t\twait;\nend process;\nend behavioral;")
     of.close()
-    
-    
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("input_fname", help="VHDL file to read.", type=str)
     args = parser.parse_args()
     create_testbench(args.input_fname)
-    
